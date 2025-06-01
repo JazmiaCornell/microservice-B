@@ -208,6 +208,19 @@ app.post("/profile", async (req, res) => {
   }
 });
 
+app.delete("/delete-user/:user_id", async (req, res) => {
+  const { user_id } = req.params;
+
+  try {
+    await db.query("DELETE FROM users WHERE user_id = ?", [user_id]);
+
+    res.json({ message: "Profile successfully deleted." });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Profile deletion failed." });
+  }
+});
+
 app.listen(8088, () => {
   console.log("server listening on port 8088");
 });
