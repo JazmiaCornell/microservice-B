@@ -3,8 +3,8 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const mysql = require("mysql2/promise");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt"); // used to hash password
+const jwt = require("jsonwebtoken"); // used to create tokens
 const bodyParser = require("body-parser");
 
 app.use(express.static("public"));
@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(cors());
 
-// database connection
+// database connection for users
 const db = mysql.createPool({
   connectionLimit: process.env.DB_CONN_LIMIT,
   host: process.env.DB_HOST,
@@ -22,11 +22,13 @@ const db = mysql.createPool({
   database: process.env.DB_NAME,
 });
 
+// generates token
 const generateToken = (user_id, username) =>
   jwt.sign({ user_id, username }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
 const saltRounds = 10;
 
+// inserts new user to database, creates session token
 app.post("/signup", async (req, res) => {
   const { username, password, first_name, last_name, email } = req.body;
   try {
@@ -63,6 +65,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+// checks database for user authentication for login
 app.post("/signin", async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -92,6 +95,7 @@ app.post("/signin", async (req, res) => {
   }
 });
 
+// updates logout state
 app.post("/logout", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   try {
@@ -105,6 +109,7 @@ app.post("/logout", async (req, res) => {
   }
 });
 
+// checks user state
 app.get("/state/:username", async (req, res) => {
   const { username } = req.params;
   const [rows] = await db.query(
@@ -117,6 +122,7 @@ app.get("/state/:username", async (req, res) => {
   res.json({ logged_in: rows[0].logged_in });
 });
 
+// fetches user information
 app.get("/get-user/:user_id", async (req, res) => {
   const { user_id } = req.params;
 
@@ -139,6 +145,7 @@ app.get("/get-user/:user_id", async (req, res) => {
   }
 });
 
+// updates user's information in database
 app.post("/profile", async (req, res) => {
   const {
     user_id,
@@ -208,6 +215,7 @@ app.post("/profile", async (req, res) => {
   }
 });
 
+// deletes user from database
 app.delete("/delete-user/:user_id", async (req, res) => {
   const { user_id } = req.params;
 
@@ -221,6 +229,7 @@ app.delete("/delete-user/:user_id", async (req, res) => {
   }
 });
 
+// listener
 app.listen(8088, () => {
   console.log("server listening on port 8088");
 });
