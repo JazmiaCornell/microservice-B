@@ -7,6 +7,12 @@ const bcrypt = require("bcrypt"); // used to hash password
 const jwt = require("jsonwebtoken"); // used to create tokens
 const bodyParser = require("body-parser");
 
+// Citation Scope: Implementation of cors for frontend to backend communication, bcrypt for password hashing
+// Date: 05/04/2025
+// Originality: Adapted
+// Source: https://www.youtube.com/watch?v=dICDmbgGFdE&list=PLzF6FKB4VN3_8lYlLOsJI8hElGLRgUs7C
+// Author: TechCheck
+
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
