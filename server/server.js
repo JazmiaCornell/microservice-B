@@ -21,11 +21,11 @@ app.use(cors());
 
 // database connection for users
 const db = mysql.createPool({
-  connectionLimit: process.env.DB_CONN_LIMIT,
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  connectionLimit: 10,
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
 });
 
 // generates token
@@ -60,6 +60,11 @@ app.post("/signup", async (req, res) => {
 
     const token = generateToken(user.user_id, user.username);
 
+    console.log("Sent from Microservice B", {
+      token: token,
+      username: user.username,
+      id: user.user_id,
+    });
     res.status(201).json({
       token,
       message: "User registered",
@@ -90,6 +95,11 @@ app.post("/signin", async (req, res) => {
     ]);
 
     const token = generateToken(user.user_id, user.username);
+    console.log("Sent from Microservice B", {
+      token: token,
+      username: user.username,
+      id: user.user_id,
+    });
     res.json({
       token,
       message: "Logged in",
@@ -109,6 +119,7 @@ app.post("/logout", async (req, res) => {
     await db.query("UPDATE users SET logged_in = false WHERE user_id = ?", [
       decoded.user_id,
     ]);
+    console.log("logged out");
     res.json({ message: "Logged out" });
   } catch (err) {
     res.status(400).json("error: 'Invalid token");
@@ -144,6 +155,7 @@ app.get("/get-user/:user_id", async (req, res) => {
     }
 
     const user = results[0];
+    console.log(user);
     return res.json(user);
   } catch (err) {
     console.error("Database error:", err);
@@ -214,6 +226,7 @@ app.post("/profile", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    console.log("Profile successfully updated.");
     res.json({ message: "Profile updated successfully" });
   } catch (err) {
     console.error("Error updating user:", err);
@@ -228,6 +241,7 @@ app.delete("/delete-user/:user_id", async (req, res) => {
   try {
     await db.query("DELETE FROM users WHERE user_id = ?", [user_id]);
 
+    console.log("Profile successfully deleted.");
     res.json({ message: "Profile successfully deleted." });
   } catch (err) {
     console.log(err);
@@ -237,7 +251,7 @@ app.delete("/delete-user/:user_id", async (req, res) => {
 
 // listener
 app.listen(8088, () => {
-  console.log("server listening on port 8088");
+  console.log("Microservice-B server listening on port 8088");
 });
 
 module.exports.db = db;
