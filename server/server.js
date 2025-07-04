@@ -14,12 +14,18 @@ const bodyParser = require("body-parser");
 // Author: TechCheck
 
 const PORT = process.env.PORT || 8088;
+const CORS_ORIGIN = process.env.CORS_ORIGIN;
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: CORS_ORIGIN,
+    credentials: true,
+  })
+);
 
 // database connection for users
 const db = mysql.createPool({
