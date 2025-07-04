@@ -13,6 +13,8 @@ const bodyParser = require("body-parser");
 // Source: https://www.youtube.com/watch?v=dICDmbgGFdE&list=PLzF6FKB4VN3_8lYlLOsJI8hElGLRgUs7C
 // Author: TechCheck
 
+const PORT = process.env.PORT || 8088;
+
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -24,6 +26,7 @@ const db = mysql.createPool({
   connectionLimit: 10,
   host: process.env.MYSQLHOST,
   user: process.env.MYSQLUSER,
+  port: process.env.MYSQLPORT || 3306,
   password: process.env.MYSQLPASSWORD,
   database: process.env.MYSQLDATABASE,
 });
@@ -250,8 +253,8 @@ app.delete("/delete-user/:user_id", async (req, res) => {
 });
 
 // listener
-app.listen(8088, () => {
-  console.log("Microservice-B server listening on port 8088");
+app.listen(PORT, () => {
+  console.log(`Microservice-B server listening on port ${PORT}`);
 });
 
 module.exports.db = db;
