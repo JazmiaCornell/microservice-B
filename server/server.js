@@ -88,22 +88,37 @@ app.post("/signup", async (req, res) => {
 // checks database for user authentication for login
 app.post("/signin", async (req, res) => {
   const { username, password } = req.body;
+  console.log("Signin attempt for username:", username);
+
   try {
     const [rows] = await db.query("SELECT * FROM users WHERE username = ?", [
       username,
     ]);
+    console.log("Database query result:", rows);
+
     if (rows.length === 0)
       return res.status(400).json({ message: "User not found" });
 
     const user = rows[0];
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(401).json({ message: "Invalid credentials" });
+    if (!match) {
+      console.warn(`Invalid credentials for user: ${username}`);
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
-    await db.query("UPDATE users SET logged_in = true WHERE user_id = ?", [
-      user.user_id,
-    ]);
+    try {
+      await db.query("UPDATE users SET logged_in = true WHERE user_id = ?", [
+        user.user_id,
+      ]);
+      console.log(`User ${username} logged_in set to true`);
+    } catch (err) {
+      console.error("Error updating logged_in state:", err);
+      // continue anyway
+    }
 
     const token = generateToken(user.user_id, user.username);
+    console.log("JWT token generated successfully");
+
     console.log("Sent from Microservice B", {
       token: token,
       username: user.username,
