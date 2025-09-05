@@ -34,7 +34,7 @@ const db = mysql.createPool({
   user: process.env.MYSQLUSER,
   port: process.env.MYSQLPORT || 3306,
   password: process.env.MYSQLPASSWORD,
-  database: process.env.MYSQLDATABASE,
+  database: process.env.MYSQL_DATABASE,
 });
 
 // generates token
